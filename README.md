@@ -7,3 +7,4 @@ Cheatsheets for some tools I use:
 * [`git`](git.md) - a task-oriented reference for everyday Git
 * [`lazygit`](lazygit.md) - a terminal UI for Git
 * [`screen`](screen.md) - an old school virtual terminal emulation tool
+* [`yazi`](yazi.md) - a blazing-fast terminal file manager
