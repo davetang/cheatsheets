@@ -2,6 +2,7 @@
 
 Cheatsheets for some tools I use:
 
+* [`aerc`](aerc.md) - a terminal email client with vim-like keys
 * [`atuin`](atuin.md) - shell history in a SQLite database, searchable and syncable
 * [`bat`](bat.md) - a `cat` clone with syntax highlighting, Git integration, and paging
 * [`fzf`](fzf.md) - a general-purpose command-line fuzzy finder
