@@ -237,7 +237,7 @@ Everything is a command; the keys are just bindings. Press `:` and:
 | `:export-mbox <file>` | Dump the folder to an mbox file |
 | `:import-mbox <path>` | Load an mbox file into the folder |
 | `:eml <path>` | Open a `.eml` file in a tab |
-| `:reload` | Re-read the config files without restarting |
+| `:reload` | Re-read `aerc.conf`, `binds.conf` and the styleset (**not** `accounts.conf`) |
 | `:choose -o y 'Sure?' delete` | Build your own confirmation prompt |
 | `:prompt 'Quit?' quit` | Ask before running a command |
 
@@ -285,6 +285,59 @@ aerc refuses to start if `accounts.conf` is group- or world-readable; either
 `chmod 600` it or set `[general] unsafe-accounts-conf = true`, which is a bad
 trade. If `accounts.conf` doesn't exist, the `:new-account` wizard runs
 automatically on first start.
+
+### Folder names on Maildir++ servers
+
+```
+message sent, but copying to Sent failed: Client tried to access nonexistent
+namespace. (Mailbox name should probably be prefixed with: INBOX.)
+```
+
+That error is Dovecot's, not aerc's, and the mail *was* sent — only the IMAP
+`APPEND` into Sent failed. The server uses the **Maildir++ layout**, where every
+folder is a child of INBOX with `.` as the separator, so the folder is really
+`INBOX.Sent` and aerc asked for `Sent`.
+
+Prefix the folder-role options:
+
+```ini
+# accounts.conf
+[Personal]
+source   = imaps://me%40example.org@imap.example.org
+copy-to  = INBOX.Sent
+postpone = INBOX.Drafts
+archive  = INBOX.Archive
+default  = INBOX
+```
+
+`copy-to` is the one that surfaces first, but `postpone` and `archive` fail the
+same way the first time you postpone a draft or press `a` — fix all three at
+once. `default` stays plain `INBOX`: that's the namespace root, not a child of
+it.
+
+Don't guess the names. The sidebar lists what the server actually reports, and
+`c` (`:cf`) tab-completes them — some servers use `INBOX.Sent Messages`, and
+localised ones translate the names outright.
+
+> **`:reload` won't pick this up.** It reloads `binds.conf`, `aerc.conf` and the
+> styleset; reloading `accounts.conf` is explicitly unsupported. Restart aerc.
+
+To keep the prefix out of the sidebar, map it away for display only:
+
+```ini
+# accounts.conf
+folder-map = ~/.config/aerc/folder-map
+```
+
+```
+# ~/.config/aerc/folder-map
+* = INBOX.*
+```
+
+Matching is plain string prefixing, so this rewrites `INBOX.Sent` to `Sent` and
+leaves bare `INBOX` alone. The catch: `copy-to`, `postpone`, `archive`,
+`folders` and `folders-exclude` then take the **display** names, so they go back
+to `Sent`, `Drafts` and `Archive`.
 
 ### Compose options for a vim user
 
